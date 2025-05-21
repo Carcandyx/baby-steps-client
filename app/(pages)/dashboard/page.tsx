@@ -11,6 +11,7 @@ import {
 import { layout, spacing, text } from '@/app/styles';
 import { authService } from '@/app/services/api/authService';
 import { useRouter } from 'next/navigation';
+import NavBar from '@/app/components/appNavBar';
 
 export default function DashboardPage() {
 	const router = useRouter();
@@ -49,8 +50,17 @@ export default function DashboardPage() {
 		);
 	}
 
+	// Get user initials for the avatar
+	const getInitials = () => {
+		if (!user) return 'JS';
+		return `${user.firstName?.charAt(0) || ''}${
+			user.lastName?.charAt(0) || ''
+		}`;
+	};
+
 	return (
 		<Box sx={layout.page}>
+			<NavBar userInitials={getInitials()} />
 			<Box sx={layout.container}>
 				<Paper
 					elevation={3}

@@ -11,6 +11,7 @@ import {
 	useTheme,
 } from '@mui/material';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 interface NavBarProps {
 	userInitials?: string;
@@ -18,6 +19,12 @@ interface NavBarProps {
 
 export default function NavBar({ userInitials = 'JS' }: NavBarProps) {
 	const theme = useTheme();
+	const pathname = usePathname();
+
+	// Helper to determine if a link is active
+	const isActive = (path: string) => {
+		return pathname === path || pathname?.startsWith(`${path}/`);
+	};
 
 	return (
 		<AppBar
@@ -26,11 +33,20 @@ export default function NavBar({ userInitials = 'JS' }: NavBarProps) {
 				backgroundColor: theme.palette.primary.light,
 				boxShadow: 'none',
 				color: theme.palette.text.primary,
+				padding: '0.5rem 1rem',
 			}}
 		>
-			<Toolbar sx={{ justifyContent: 'space-between' }}>
+			<Toolbar sx={{ justifyContent: 'space-between', padding: { xs: 0 } }}>
 				{/* Logo */}
-				<Box sx={{ display: 'flex', alignItems: 'center' }}>
+				<Box
+					sx={{
+						display: 'flex',
+						alignItems: 'center',
+						marginRight: { xs: 1, md: 4 },
+					}}
+					component={Link}
+					href='/dashboard'
+				>
 					<Typography
 						variant='h6'
 						component='div'
@@ -39,14 +55,18 @@ export default function NavBar({ userInitials = 'JS' }: NavBarProps) {
 							display: 'flex',
 							alignItems: 'center',
 							gap: 1,
+							textDecoration: 'none',
+							color: 'inherit',
 						}}
 					>
 						<Avatar
 							sx={{
 								backgroundColor: 'white',
 								color: theme.palette.primary.light,
-								width: 24,
-								height: 24,
+								width: 28,
+								height: 28,
+								marginRight: '4px',
+								fontSize: '1rem',
 							}}
 						>
 							👶
@@ -60,16 +80,18 @@ export default function NavBar({ userInitials = 'JS' }: NavBarProps) {
 					sx={{
 						display: 'flex',
 						flexGrow: 1,
-						justifyContent: 'center',
-						gap: 4,
+						justifyContent: { xs: 'space-between', md: 'center' },
+						gap: { xs: 0, md: 4 },
 					}}
 				>
 					<Button
 						component={Link}
-						href='/resumen'
+						href='/dashboard'
 						sx={{
-							color: 'inherit',
-							fontWeight: 'medium',
+							color: isActive('/dashboard')
+								? theme.palette.primary.dark
+								: 'inherit',
+							fontWeight: isActive('/dashboard') ? 'bold' : 'medium',
 							'&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' },
 						}}
 					>
@@ -79,12 +101,40 @@ export default function NavBar({ userInitials = 'JS' }: NavBarProps) {
 						component={Link}
 						href='/bebes'
 						sx={{
-							color: 'inherit',
-							fontWeight: 'medium',
+							color: isActive('/bebes')
+								? theme.palette.primary.dark
+								: 'inherit',
+							fontWeight: isActive('/bebes') ? 'bold' : 'medium',
 							'&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' },
 						}}
 					>
 						Bebés
+					</Button>
+					<Button
+						component={Link}
+						href='/calendario'
+						sx={{
+							color: isActive('/calendario')
+								? theme.palette.primary.dark
+								: 'inherit',
+							fontWeight: isActive('/calendario') ? 'bold' : 'medium',
+							'&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' },
+						}}
+					>
+						Calendario
+					</Button>
+					<Button
+						component={Link}
+						href='/informes'
+						sx={{
+							color: isActive('/informes')
+								? theme.palette.primary.dark
+								: 'inherit',
+							fontWeight: isActive('/informes') ? 'bold' : 'medium',
+							'&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' },
+						}}
+					>
+						Informes
 					</Button>
 				</Box>
 
@@ -94,6 +144,7 @@ export default function NavBar({ userInitials = 'JS' }: NavBarProps) {
 						bgcolor: theme.palette.secondary.main,
 						color: theme.palette.secondary.contrastText,
 						cursor: 'pointer',
+						marginLeft: { xs: 1, md: 4 },
 					}}
 				>
 					{userInitials}
