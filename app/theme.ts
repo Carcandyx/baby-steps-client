@@ -9,7 +9,7 @@ const theme = createTheme({
 			main: '#A095FF', // Primary purple for buttons, links, etc.
 			light: '#E8E7FF', // Light purple for backgrounds
 			dark: '#7B74BC', // Darker shade for hover states
-			contrastText: '#000000',
+			contrastText: '#FFFFFF', // Changed to white for better contrast
 		},
 		secondary: {
 			main: '#F8A4BB', // Pink accent color
@@ -47,34 +47,44 @@ const theme = createTheme({
 		},
 	},
 	typography: {
-		fontFamily: 'var(--font-geist-sans), sans-serif',
+		fontFamily: 'var(--font-montserrat), sans-serif',
 		h1: {
+			fontSize: '2.5rem',
+			fontWeight: 700,
+		},
+		h2: {
 			fontSize: '2rem',
 			fontWeight: 600,
 		},
-		h2: {
+		h3: {
 			fontSize: '1.75rem',
 			fontWeight: 600,
 		},
-		h3: {
+		h4: {
 			fontSize: '1.5rem',
 			fontWeight: 600,
+			marginBottom: '0.5rem',
 		},
-		h4: {
+		h5: {
 			fontSize: '1.25rem',
 			fontWeight: 600,
 		},
-		h5: {
-			fontSize: '1.125rem',
-			fontWeight: 600,
-		},
 		h6: {
-			fontSize: '1rem',
+			fontSize: '1.1rem',
 			fontWeight: 600,
 		},
 		button: {
 			textTransform: 'none', // Prevents automatic uppercase text
-			fontWeight: 500,
+			fontWeight: 600,
+			fontSize: '1rem',
+		},
+		body1: {
+			fontSize: '1rem',
+			lineHeight: 1.5,
+		},
+		body2: {
+			fontSize: '0.875rem',
+			lineHeight: 1.5,
 		},
 	},
 	shape: {
@@ -84,13 +94,16 @@ const theme = createTheme({
 		MuiButton: {
 			styleOverrides: {
 				root: {
-					borderRadius: 24, // Rounded buttons
-					padding: '8px 16px',
+					borderRadius: 30, // More rounded buttons
+					padding: '10px 24px',
+					transition: 'all 0.2s ease-in-out',
+					fontFamily: 'var(--font-montserrat), sans-serif',
 				},
 				contained: {
-					boxShadow: 'none',
+					boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.1)',
 					'&:hover': {
-						boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+						boxShadow: '0px 6px 10px rgba(0, 0, 0, 0.15)',
+						transform: 'translateY(-2px)',
 					},
 				},
 			},
@@ -99,16 +112,27 @@ const theme = createTheme({
 			styleOverrides: {
 				root: {
 					borderRadius: 16,
-					boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.05)',
+					boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.08)',
 				},
 			},
 		},
 		MuiTextField: {
 			styleOverrides: {
 				root: {
+					marginBottom: '16px',
+					'& .MuiInputLabel-root': {
+						fontFamily: 'var(--font-montserrat), sans-serif',
+					},
 					'& .MuiOutlinedInput-root': {
-						borderRadius: 8,
-						backgroundColor: 'rgba(255, 255, 255, 0.8)',
+						borderRadius: 12,
+						backgroundColor: 'rgba(255, 255, 255, 0.9)',
+						transition: 'all 0.2s',
+						'&:hover': {
+							boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.08)',
+						},
+						'&.Mui-focused': {
+							boxShadow: '0px 4px 12px rgba(160, 149, 255, 0.2)',
+						},
 					},
 				},
 			},
@@ -118,6 +142,7 @@ const theme = createTheme({
 				root: {
 					backgroundColor: '#F8A4BB', // Default pink background
 					color: '#FFFFFF',
+					fontFamily: 'var(--font-montserrat), sans-serif',
 				},
 			},
 		},
@@ -129,6 +154,20 @@ const theme = createTheme({
 					boxShadow: 'none',
 				},
 			},
+		},
+		MuiTypography: {
+			styleOverrides: {
+				root: {
+					fontFamily: 'var(--font-montserrat), sans-serif',
+				},
+			},
+		},
+		MuiCssBaseline: {
+			styleOverrides: `
+				html, body {
+					font-family: var(--font-montserrat), sans-serif;
+				}
+			`,
 		},
 	},
 });
