@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import theme from './theme';
+import DatePickerProvider from './datePickerProvider';
 
 export default function ThemeRegistry({
 	children,
@@ -23,8 +24,11 @@ export default function ThemeRegistry({
 		<ThemeProvider theme={theme}>
 			{/* CssBaseline kickstarts an elegant, consistent, and simple baseline to build upon */}
 			<CssBaseline />
-			{/* Only render children once mounted on client to prevent hydration mismatch */}
-			{mounted ? children : null}
+			{/* Apply DatePicker Provider */}
+			<DatePickerProvider>
+				{/* Only render children once mounted on client to prevent hydration mismatch */}
+				{mounted ? children : null}
+			</DatePickerProvider>
 		</ThemeProvider>
 	);
 }

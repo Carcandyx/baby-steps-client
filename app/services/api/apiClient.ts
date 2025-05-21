@@ -100,11 +100,36 @@ export const request = async <T>(
 
 		// Parse the response data
 		let data;
-		try {
-			data = await response.json();
-		} catch {
-			// Handle non-JSON responses
-			data = { message: await response.text() };
+
+		// Check if response has content
+		const contentLength = response.headers.get('Content-Length');
+		const hasContent = contentLength === null || parseInt(contentLength) > 0;
+
+		if (response.ok) {
+			// Handle successful responses
+			if (hasContent) {
+				// Try to parse as JSON for responses with content
+				try {
+					data = await response.json();
+				} catch {
+					// If JSON parsing fails, try to read as text
+					const responseClone = response.clone();
+					const text = await responseClone.text();
+					data = text ? { message: text } : {};
+				}
+			} else {
+				// For empty responses (like 204 No Content)
+				data = {};
+			}
+		} else {
+			// Handle error responses
+			try {
+				data = await response.json();
+			} catch {
+				// If parsing as JSON fails, try as text
+				const text = await response.text();
+				data = { message: text || response.statusText };
+			}
 		}
 
 		// Check for 401 Unauthorized responses and handle them
@@ -197,6 +222,16 @@ export const apiClient = {
 		headers = {}
 	) => request<T>(endpoint, { method: 'PATCH', body, headers, authenticated }),
 
-	delete: <T>(endpoint: string, authenticated = false, headers = {}) =>
-		request<T>(endpoint, { method: 'DELETE', headers, authenticated }),
+	delete: <T>(
+		endpoint: string,
+		body?: Record<string, unknown>,
+		authenticated = false,
+		headers = {}
+	) =>
+		request<T>(endpoint, {
+			method: 'DELETE',
+			...(body && { body }),
+			headers,
+			authenticated,
+		}),
 };

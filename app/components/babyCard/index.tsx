@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import {
 	Box,
 	Typography,
@@ -8,11 +9,12 @@ import {
 	CardContent,
 	Avatar,
 	Button,
+	IconButton,
 } from '@mui/material';
 import SpaIcon from '@mui/icons-material/Spa';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import NightShelterIcon from '@mui/icons-material/NightShelter';
-import AddIcon from '@mui/icons-material/Add';
+import { ChildCareRounded, DeleteOutline } from '@mui/icons-material';
 
 // Predefined theme colors for baby cards
 const CARD_COLORS = [
@@ -33,7 +35,7 @@ const getRandomColor = () => {
 
 // Baby interface
 export interface Baby {
-	id: number;
+	_id: string;
 	name?: string;
 	age?: string;
 	activities?: {
@@ -44,11 +46,12 @@ export interface Baby {
 	birthDate?: Date;
 	weight?: string;
 	height?: string;
+	gender?: 'MALE' | 'FEMALE';
 }
 
 interface BabyCardProps {
-	baby?: Baby; // Optional to handle the "Add New Baby" card
-	isAddCard?: boolean;
+	baby: Baby;
+	onDelete: (baby: Baby) => void;
 }
 
 // Helper function to format relative time
@@ -75,6 +78,9 @@ const getRelativeTime = (date?: Date): string => {
 // Helper function to format a date nicely
 const formatDate = (date?: Date): string => {
 	if (!date) return '-';
+	if (typeof date === 'string') {
+		date = new Date(date);
+	}
 
 	const options: Intl.DateTimeFormatOptions = {
 		day: 'numeric',
@@ -85,65 +91,21 @@ const formatDate = (date?: Date): string => {
 	return date.toLocaleDateString('es-ES', options);
 };
 
-const BabyCard: React.FC<BabyCardProps> = ({ baby, isAddCard = false }) => {
-	if (isAddCard) {
-		return (
-			<Card
-				sx={{
-					borderRadius: 4,
-					overflow: 'hidden',
-					height: '100%',
-					width: '100%',
-					minHeight: 430,
-					display: 'flex',
-					flexDirection: 'column',
-					justifyContent: 'center',
-					alignItems: 'center',
-					py: 8,
-					backgroundColor: 'background.paper',
-					border: '1px dashed rgba(0,0,0,0.1)',
-					cursor: 'pointer',
-					'&:hover': {
-						border: '1px dashed rgba(0,0,0,0.2)',
-						backgroundColor: 'background.default',
-					},
-				}}
-			>
-				<Avatar
-					sx={{
-						bgcolor: 'background.default',
-						width: 80,
-						height: 80,
-						border: '1px dashed rgba(0,0,0,0.2)',
-						mb: 2,
-					}}
-				>
-					<AddIcon color='primary' fontSize='large' />
-				</Avatar>
+const BabyCard: React.FC<BabyCardProps> = ({ baby, onDelete }) => {
+	const router = useRouter();
 
-				<Typography
-					variant='h6'
-					fontWeight='medium'
-					color='primary.main'
-					sx={{ mb: 1 }}
-				>
-					Agregar Nuevo Bebé
-				</Typography>
+	const handleViewDetails = () => {
+		router.push(`/bebes/${baby._id}`);
+	};
 
-				<Typography
-					variant='body2'
-					color='text.secondary'
-					sx={{ maxWidth: 250, textAlign: 'center' }}
-				>
-					Registra a tu bebé para hacer seguimiento de su crecimiento,
-					alimentación y desarrollo
-				</Typography>
-			</Card>
-		);
-	}
+	// Get background color based on baby's gender
+	const getBackgroundColor = () => {
+		if (!baby.gender) return getRandomColor(); // Fallback to random if no gender
 
-	// For regular baby cards, baby must be defined
-	if (!baby) return null;
+		return baby.gender === 'MALE'
+			? 'rgba(167, 226, 255, 0.3)' // Light blue for boys
+			: 'rgba(248, 164, 187, 0.3)'; // Light pink for girls
+	};
 
 	return (
 		<Card
@@ -153,13 +115,33 @@ const BabyCard: React.FC<BabyCardProps> = ({ baby, isAddCard = false }) => {
 				height: '100%',
 				width: '100%',
 				minHeight: 430,
+				position: 'relative',
 			}}
 		>
+			{/* Delete Button */}
+			<IconButton
+				aria-label='delete'
+				sx={{
+					position: 'absolute',
+					top: 8,
+					right: 8,
+					zIndex: 1,
+					bgcolor: 'rgba(255,255,255,0.8)',
+					'&:hover': {
+						bgcolor: 'error.light',
+						color: 'error.main',
+					},
+				}}
+				onClick={() => onDelete(baby)}
+			>
+				<DeleteOutline fontSize='small' />
+			</IconButton>
+
 			{/* Baby Avatar Section */}
 			<Box
 				sx={{
 					height: 120,
-					backgroundColor: getRandomColor(),
+					backgroundColor: getBackgroundColor(),
 					display: 'flex',
 					justifyContent: 'center',
 					alignItems: 'center',
@@ -174,9 +156,12 @@ const BabyCard: React.FC<BabyCardProps> = ({ baby, isAddCard = false }) => {
 						border: '4px solid white',
 					}}
 				>
-					<Typography variant='h4' component='span' sx={{ color: '#555' }}>
-						☺
-					</Typography>
+					<ChildCareRounded
+						sx={{
+							color: baby.gender === 'MALE' ? 'info.main' : 'secondary.main',
+							fontSize: 60,
+						}}
+					/>
 				</Avatar>
 			</Box>
 
@@ -278,6 +263,7 @@ const BabyCard: React.FC<BabyCardProps> = ({ baby, isAddCard = false }) => {
 						},
 						width: '100%',
 					}}
+					onClick={handleViewDetails}
 				>
 					Ver Detalles
 				</Button>
