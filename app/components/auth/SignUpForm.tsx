@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import {
@@ -11,9 +11,16 @@ import {
 	TextField,
 	Typography,
 	useTheme,
+	Alert,
 } from '@mui/material';
 import PasswordInput from './PasswordInput';
 import { button, form, spacing } from '@/app/styles';
+import {
+	authService,
+	SignupRequest,
+	AuthError,
+} from '@/app/services/api/authService';
+import { useRouter } from 'next/navigation';
 
 interface SignUpFormProps {
 	onToggleForm: () => void;
@@ -43,6 +50,9 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 	translations,
 }) => {
 	const theme = useTheme();
+	const router = useRouter();
+	const [error, setError] = useState<string | null>(null);
+	const [loading, setLoading] = useState(false);
 
 	// Validation schema
 	const validationSchema = Yup.object({
@@ -74,9 +84,34 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 			confirmPassword: '',
 		},
 		validationSchema,
-		onSubmit: (values) => {
-			console.log('Signup submitted', values);
-			// Add signup logic here
+		onSubmit: async (values) => {
+			try {
+				setError(null);
+				setLoading(true);
+
+				const signupData: SignupRequest = {
+					firstName: values.firstName,
+					lastName: values.lastName,
+					email: values.email,
+					password: values.password,
+				};
+
+				await authService.signup(signupData);
+
+				// Redirect to dashboard or home page after successful registration
+				router.push('/dashboard');
+			} catch (error) {
+				console.error('Signup error:', error);
+				if (error instanceof AuthError) {
+					setError(error.message);
+				} else if (error instanceof Error) {
+					setError(error.message);
+				} else {
+					setError('Error durante el registro. Por favor, inténtalo de nuevo.');
+				}
+			} finally {
+				setLoading(false);
+			}
 		},
 	});
 
@@ -86,6 +121,12 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 			onSubmit={formik.handleSubmit}
 			sx={{ mt: spacing.md }}
 		>
+			{error && (
+				<Alert severity='error' sx={{ mb: 2 }}>
+					{error}
+				</Alert>
+			)}
+
 			<Grid container spacing={spacing.sm}>
 				<Grid size={{ xs: 12, sm: 6 }}>
 					<TextField
@@ -103,6 +144,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 						}
 						required
 						sx={form.input}
+						disabled={loading}
 					/>
 				</Grid>
 				<Grid size={{ xs: 12, sm: 6 }}>
@@ -121,6 +163,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 						}
 						required
 						sx={form.input}
+						disabled={loading}
 					/>
 				</Grid>
 			</Grid>
@@ -142,6 +185,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 				}
 				required
 				sx={form.input}
+				disabled={loading}
 			/>
 
 			<PasswordInput
@@ -158,6 +202,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 				}
 				required
 				sx={form.input}
+				disabled={loading}
 			/>
 
 			<PasswordInput
@@ -177,6 +222,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 				}
 				required
 				sx={{ ...form.input, mt: spacing.sm }}
+				disabled={loading}
 			/>
 
 			<Button
@@ -195,8 +241,9 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 						bgcolor: theme.palette.primary.dark,
 					},
 				}}
+				disabled={loading}
 			>
-				{translations.createAccountButton}
+				{loading ? 'Creando cuenta...' : translations.createAccountButton}
 			</Button>
 
 			<Box sx={{ mt: spacing.md, textAlign: 'center' }}>
@@ -208,6 +255,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 					onClick={onToggleForm}
 					underline='hover'
 					color='primary'
+					disabled={loading}
 				>
 					{translations.logIn}
 				</Link>

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import {
@@ -10,9 +10,16 @@ import {
 	TextField,
 	Typography,
 	useTheme,
+	Alert,
 } from '@mui/material';
 import PasswordInput from './PasswordInput';
 import { button, form, spacing } from '@/app/styles';
+import {
+	authService,
+	LoginRequest,
+	AuthError,
+} from '@/app/services/api/authService';
+import { useRouter } from 'next/navigation';
 
 interface SignInFormProps {
 	onToggleForm: () => void;
@@ -35,6 +42,9 @@ const SignInForm: React.FC<SignInFormProps> = ({
 	translations,
 }) => {
 	const theme = useTheme();
+	const router = useRouter();
+	const [error, setError] = useState<string | null>(null);
+	const [loading, setLoading] = useState(false);
 
 	// Validation schema
 	const validationSchema = Yup.object({
@@ -51,9 +61,34 @@ const SignInForm: React.FC<SignInFormProps> = ({
 			password: '',
 		},
 		validationSchema,
-		onSubmit: (values) => {
-			console.log('Login submitted', values);
-			// Add login logic here
+		onSubmit: async (values) => {
+			try {
+				setError(null);
+				setLoading(true);
+
+				const loginData: LoginRequest = {
+					email: values.email,
+					password: values.password,
+				};
+
+				await authService.login(loginData);
+
+				// Redirect to dashboard or home page after successful login
+				router.push('/dashboard');
+			} catch (error) {
+				console.error('Login error:', error);
+				if (error instanceof AuthError) {
+					setError(error.message);
+				} else if (error instanceof Error) {
+					setError(error.message);
+				} else {
+					setError(
+						'Error durante el inicio de sesión. Por favor, inténtalo de nuevo.'
+					);
+				}
+			} finally {
+				setLoading(false);
+			}
 		},
 	});
 
@@ -63,6 +98,12 @@ const SignInForm: React.FC<SignInFormProps> = ({
 			onSubmit={formik.handleSubmit}
 			sx={{ mt: spacing.lg }}
 		>
+			{error && (
+				<Alert severity='error' sx={{ mb: 2 }}>
+					{error}
+				</Alert>
+			)}
+
 			<TextField
 				label={translations.email}
 				type='email'
@@ -80,6 +121,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
 				}
 				required
 				sx={form.input}
+				disabled={loading}
 			/>
 
 			<PasswordInput
@@ -96,6 +138,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
 				}
 				required
 				sx={form.input}
+				disabled={loading}
 			/>
 
 			<Button
@@ -114,8 +157,9 @@ const SignInForm: React.FC<SignInFormProps> = ({
 						bgcolor: theme.palette.primary.dark,
 					},
 				}}
+				disabled={loading}
 			>
-				{translations.loginButton}
+				{loading ? 'Iniciando sesión...' : translations.loginButton}
 			</Button>
 
 			<Box sx={{ mt: spacing.md, textAlign: 'center' }}>
@@ -127,6 +171,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
 					onClick={onToggleForm}
 					underline='hover'
 					color='primary'
+					disabled={loading}
 				>
 					{translations.signUp}
 				</Link>

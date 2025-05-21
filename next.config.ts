@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
 		return [
 			{
 				source: '/',
-				destination: '/theme-example',
+				destination: '/login',
 				permanent: false,
 			},
 		];

@@ -23,6 +23,7 @@ interface PasswordInputProps {
 	name?: string;
 	sx?: SxProps<Theme>;
 	onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+	disabled?: boolean;
 }
 
 export default function PasswordInput({
@@ -37,6 +38,7 @@ export default function PasswordInput({
 	name,
 	sx,
 	onBlur,
+	disabled = false,
 }: PasswordInputProps) {
 	const [showPassword, setShowPassword] = useState(false);
 
@@ -59,6 +61,7 @@ export default function PasswordInput({
 			required={required}
 			fullWidth
 			variant='outlined'
+			disabled={disabled}
 			sx={{ ...sx }}
 			InputProps={{
 				endAdornment: (
@@ -68,6 +71,7 @@ export default function PasswordInput({
 							onClick={handleClickShowPassword}
 							edge='end'
 							size='small'
+							disabled={disabled}
 						>
 							{showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
 						</IconButton>

@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Box, Typography } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, CircularProgress } from '@mui/material';
 import SidePanel from '@/app/components/auth/SidePanel';
 import SignInForm from '@/app/components/auth/SignInForm';
 import SignUpForm from '@/app/components/auth/SignUpForm';
 import { layout, text, form } from '@/app/styles';
+import { authService } from '@/app/services/api/authService';
+import { useRouter } from 'next/navigation';
 
 // Spanish translations for static text
 const translations = {
@@ -45,10 +47,39 @@ const translations = {
 
 export default function LoginPage() {
 	const [isLogin, setIsLogin] = useState(true);
+	const [isLoading, setIsLoading] = useState(true);
+	const router = useRouter();
+
+	useEffect(() => {
+		// Check if the user is already authenticated
+		if (authService.isAuthenticated()) {
+			// If authenticated, redirect to dashboard
+			router.push('/dashboard');
+		} else {
+			// Not authenticated, show the login screen
+			setIsLoading(false);
+		}
+	}, [router]);
 
 	const toggleAuthMode = () => {
 		setIsLogin(!isLogin);
 	};
+
+	// Show loading spinner while checking authentication
+	if (isLoading) {
+		return (
+			<Box
+				sx={{
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
+					minHeight: '100vh',
+				}}
+			>
+				<CircularProgress />
+			</Box>
+		);
+	}
 
 	return (
 		<Box sx={layout.authBackgroundFullWidth}>
